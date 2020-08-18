@@ -1,11 +1,12 @@
 
+import java.io.*;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 import java.util.*;
 import javax.swing.GroupLayout.Group;
 
-public class BeatBox {
+public class BeatBox implements Serializable {
 
     private static final int MIN_TRACKS = 6;
     private static final int MAX_TRACKS = 10;
@@ -28,6 +29,8 @@ public class BeatBox {
     JButton addButton = new JButton("+");
     JButton delButton = new JButton("-");
     JPanel modPanel = new JPanel();
+    JButton saveButton = new JButton("Save");
+    JButton loadButton = new JButton("Load");
 
     //track groups
     Group hSeqParGroup;
@@ -82,6 +85,8 @@ public class BeatBox {
                         .addComponent(startButton)
                         .addComponent(stopButton)
                         .addComponent(modPanel)
+                        .addComponent(saveButton)
+                        .addComponent(loadButton)
                 )
         );
 
@@ -94,6 +99,8 @@ public class BeatBox {
                         .addComponent(startButton)
                         .addComponent(stopButton)
                         .addComponent(modPanel)
+                        .addComponent(saveButton)
+                        .addComponent(loadButton)
                 )
         );
 
@@ -113,12 +120,38 @@ public class BeatBox {
         tempoField.addActionListener(new TempoFieldListener());
         startButton.addActionListener(new StartButtonListener());
         stopButton.addActionListener(new StopButtonListener());
+        saveButton.addActionListener(new SaveButtonListener());
+        loadButton.addActionListener(new LoadButtonListener());
 
 
         /*
         Synth testSynth = new Synth();
         testSynth.showInstruments();
          */
+    }
+
+    private void saveState() {
+        try {
+            FileOutputStream fs = new FileOutputStream("beatbox.ser");
+            ObjectOutputStream os = new ObjectOutputStream(fs);
+            os.writeObject(panel);
+            os.close();
+        } catch (Exception e) {
+            System.out.println("Not Saved.");
+            e.printStackTrace();
+        }
+    }
+
+    private void loadState() {
+        try {
+            FileInputStream fs = new FileInputStream("beatbox.ser");
+            ObjectInputStream is = new ObjectInputStream(fs);
+            Object objectPanel = is.readObject();
+            panel = (JPanel) objectPanel;
+            is.close();
+        } catch (Exception e) {
+            System.out.println("Not Loaded.");
+        }
     }
 
     private void setTempo(int tempo) {
@@ -246,6 +279,20 @@ public class BeatBox {
 
         public void actionPerformed(ActionEvent e) {
 
+        }
+    }
+
+    class SaveButtonListener implements ActionListener {
+
+        public void actionPerformed(ActionEvent e) {
+            saveState();
+        }
+    }
+
+    class LoadButtonListener implements ActionListener {
+
+        public void actionPerformed(ActionEvent e) {
+            loadState();
         }
     }
 }
